@@ -1,11 +1,11 @@
 import {
   FilesGraph,
-  fromYaml,
-  GraphHelpers,
+  Graph,
   MapExtensionsGraph,
   MapInnerKeysGraph,
   MapValuesGraph,
   ObjectGraph,
+  parseYaml,
 } from "@graphorigami/origami";
 import indexPage from "./indexPage.js";
 import personPage from "./personPage.js";
@@ -14,18 +14,18 @@ import thumbnail from "./thumbnail.js";
 const files = new FilesGraph(import.meta.url);
 const assets = await files.get("assets");
 const images = await files.get("images");
-const teamGraph = fromYaml(await files.get("teamData.yaml"));
+const teamGraph = await parseYaml(await files.get("teamData.yaml"));
 
 const siteName = "Our Amazing Team";
 const teamByName = new MapInnerKeysGraph(teamGraph, (value) =>
   value.get("name")
 );
 
-const indexHtml = indexPage(await GraphHelpers.plain(teamByName), siteName);
+const indexHtml = indexPage(await Graph.plain(teamByName), siteName);
 const thumbnails = new MapValuesGraph(images, thumbnail);
 const team = new MapExtensionsGraph(
   teamByName,
-  async (person) => personPage(await GraphHelpers.plain(person), siteName),
+  async (person) => personPage(await Graph.plain(person), siteName),
   {
     extension: "->html",
   }
